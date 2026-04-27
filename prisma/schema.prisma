@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js" 
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+model Board {
+  id        String   @id @default(cuid())
+  title     String
+  userId    String   // Kullanıcının Clerk ID'sini burada tutuyoruz.
+  columns   Column[]
+  createdAt DateTime @default(now())
+}
+
+model Column {
+  id        String   @id @default(uuid())
+  title     String
+  position  Float    // Sıralama için float kullandım.
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards     Card[]
+}
+
+model Card {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  position    Float    //Lexicographical Indexing
+  columnId    String
+  column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
+}

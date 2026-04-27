@@ -1,0 +1,19 @@
+// src/lib/db.ts
+import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+// 1. Veritabanı bağlantı linkimizi ortam değişkenlerinden alıyoruz
+const connectionString = process.env.DATABASE_URL;
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+// 3. PrismaClient'ı bu yeni adaptör ile başlatıyoruz
+export const db = globalForPrisma.prisma ?? new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;
